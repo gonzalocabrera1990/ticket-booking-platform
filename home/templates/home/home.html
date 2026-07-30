@@ -1,0 +1,177 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}
+Eventos | Inicio
+{% endblock %}
+
+{% block extra_css %}
+
+<link rel="stylesheet" href="{% static 'home/css/styles.css' %}">
+
+{% endblock %}
+
+{% block content %}
+
+    <!-- =========================
+        HERO
+    ========================== -->
+
+    <header class="hero">
+
+        <img src="{% static 'img/portada.jpg' %}" alt="Show en vivo">
+
+        <div class="hero-overlay"></div>
+
+        <div class="hero-content">
+            <h1>
+                Viví la emoción de los mejores espectáculos
+            </h1>
+
+            <p>
+                Conciertos, festivales, teatro y eventos únicos.
+                Descubrí experiencias inolvidables y conseguí tus entradas.
+            </p>
+        </div>
+
+    </header>
+
+    <!-- =========================
+        TRANSICION SUAVE
+    ========================== -->
+
+    <div class="wave-divider">
+        <svg viewBox="0 0 1440 320" preserveAspectRatio="none">
+            <path fill="#070b18"
+                d="M0,96L60,117.3C120,139,240,181,360,181.3C480,181,600,139,720,138.7C840,139,960,181,1080,192C1200,203,1320,181,1380,170.7L1440,160L1440,320L0,320Z">
+            </path>
+        </svg>
+    </div>
+
+    <!-- =========================
+        DESTACADOS
+    ========================== -->
+
+    <section>
+
+        <h2 class="section-title">
+            Destacados
+        </h2>
+
+        <div class="cards-grid">
+
+            {% for i in "1234" %}
+
+            <div class="card">
+                <img src="{% static 'img/portada.jpg' %}" alt="Show">
+
+                <div class="card-overlay"></div>
+
+                <div class="card-info">
+                    <h3>Nombre del espectáculo</h3>
+                    <p>Buenos Aires • 20 Nov</p>
+                </div>
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+    </section>
+
+    <!-- =========================
+        SHOWS
+    ========================== -->
+
+    <section>
+
+        <h2 class="section-title">
+            Shows
+        </h2>
+
+        <div class="cards-grid">
+
+            {% for i in "12345678" %}
+
+            <div class="card">
+                <img src="{% static 'img/portada.jpg' %}" alt="Show">
+
+                <div class="card-overlay"></div>
+
+                <div class="card-info">
+                    <h3>Artista / Evento</h3>
+                    <p>La Plata • 12 Dic</p>
+                </div>
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+        <div class="center-button">
+            <button class="btn btn-primary">
+                Mostrar más
+            </button>
+        </div>
+
+    </section>
+
+    <!-- =========================
+        PUBLICIDAD
+    ========================== -->
+
+    <section>
+
+        <div class="ads-grid">
+
+            {% for i in "1234" %}
+
+            <div class="ad">
+                <img src="{% static 'img/publicidad.jpg' %}" alt="Publicidad">
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+    </section>
+
+    <!-- =========================
+        BUSQUEDA
+    ========================== -->
+
+    <section>
+
+        <div class="search-section">
+
+            <h2 class="section-title" style="text-align:center;">
+                Encontrá tu próximo show
+            </h2>
+
+            <form class="search-container">
+
+                <input
+                    type="text"
+                    placeholder="Buscar espectáculos..."
+                >
+
+                <select>
+                    <option>Categorías</option>
+                    <option>Rock</option>
+                    <option>Pop</option>
+                    <option>Electrónica</option>
+                    <option>Teatro</option>
+                    <option>Festivales</option>
+                </select>
+
+                <button class="btn btn-primary">
+                    Buscar
+                </button>
+
+            </form>
+
+        </div>
+
+    </section>
+{% endblock %}

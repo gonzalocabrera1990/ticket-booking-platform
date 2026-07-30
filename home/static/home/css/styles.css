@@ -1,0 +1,280 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+html{
+    scroll-behavior:smooth;
+}
+
+body{
+    font-family:'Montserrat', sans-serif;
+    background:#070b18;
+    color:white;
+    overflow-x:hidden;
+}
+
+a{
+    text-decoration:none;
+    color:inherit;
+}
+
+
+
+/* =========================
+    HERO
+========================== */
+
+.hero{
+    height:100vh;
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+}
+
+.hero img{
+    position:absolute;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    filter:brightness(0.55);
+}
+
+.hero-overlay{
+    position:absolute;
+    inset:0;
+    background:
+        linear-gradient(
+            to bottom,
+            rgba(5,10,25,0.2),
+            rgba(5,10,25,0.6),
+            #070b18
+        );
+}
+
+.hero-content{
+    position:relative;
+    z-index:2;
+    text-align:center;
+    width:90%;
+    max-width:900px;
+}
+
+.hero-content h1{
+    font-size:4.2rem;
+    margin-bottom:20px;
+    line-height:1.1;
+    text-shadow:0 5px 30px rgba(0,0,0,0.5);
+}
+
+.hero-content p{
+    font-size:1.2rem;
+    color:#d6d6d6;
+    line-height:1.7;
+}
+
+/* =========================
+    TRANSICION HERO
+========================== */
+
+.wave-divider{
+    position:relative;
+    margin-top:-1px;
+    line-height:0;
+}
+
+.wave-divider svg{
+    display:block;
+    width:100%;
+    height:140px;
+}
+
+/* =========================
+    SECCIONES
+========================== */
+
+section{
+    padding:90px 7%;
+}
+
+.section-title{
+    font-size:2rem;
+    margin-bottom:40px;
+    font-weight:700;
+}
+
+.cards-grid{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:24px;
+}
+
+.card{
+    position:relative;
+    border-radius:24px;
+    overflow:hidden;
+    height:360px;
+    background:#111;
+    cursor:pointer;
+    transition:0.35s ease;
+}
+
+.card:hover{
+    transform:translateY(-8px);
+    box-shadow:0 20px 35px rgba(0,0,0,0.35);
+}
+
+.card img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+}
+
+.card-overlay{
+    position:absolute;
+    inset:0;
+    background:linear-gradient(
+        to top,
+        rgba(0,0,0,0.92),
+        rgba(0,0,0,0.1)
+    );
+}
+
+.card-info{
+    position:absolute;
+    bottom:20px;
+    left:20px;
+    right:20px;
+    z-index:2;
+}
+
+.card-info h3{
+    font-size:1.2rem;
+    margin-bottom:10px;
+}
+
+.card-info p{
+    color:#d5d5d5;
+    font-size:0.95rem;
+}
+
+.center-button{
+    display:flex;
+    justify-content:center;
+    margin-top:50px;
+}
+
+/* =========================
+    PUBLICIDAD
+========================== */
+
+.ads-grid{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:20px;
+}
+
+.ad{
+    height:220px;
+    border-radius:24px;
+    overflow:hidden;
+}
+
+.ad img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    transition:0.4s;
+}
+
+.ad:hover img{
+    transform:scale(1.05);
+}
+
+/* =========================
+    BUSQUEDA
+========================== */
+
+.search-section{
+    background:linear-gradient(
+        135deg,
+        rgba(30,40,95,0.8),
+        rgba(84,33,122,0.8)
+    );
+
+    border-radius:34px;
+    padding:70px 40px;
+}
+
+.search-container{
+    display:flex;
+    gap:18px;
+    flex-wrap:wrap;
+    justify-content:center;
+}
+
+.search-container input,
+.search-container select{
+    padding:18px;
+    border:none;
+    border-radius:14px;
+    background:rgba(255,255,255,0.08);
+    color:white;
+    min-width:260px;
+    outline:none;
+    backdrop-filter:blur(8px);
+}
+
+.search-container select option{
+    color:black;
+}
+
+
+/* =========================
+    RESPONSIVE
+========================== */
+
+@media(max-width:1100px){
+
+    .cards-grid,
+    .ads-grid{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    .hero-content h1{
+        font-size:3rem;
+    }
+}
+
+@media(max-width:700px){
+
+    .navbar{
+        padding:18px 5%;
+    }
+
+    .hero-content h1{
+        font-size:2.3rem;
+    }
+
+    .hero-content p{
+        font-size:1rem;
+    }
+
+    .cards-grid,
+    .ads-grid{
+        grid-template-columns:1fr;
+    }
+
+    .search-container{
+        flex-direction:column;
+    }
+
+    .search-container input,
+    .search-container select,
+    .search-container button{
+        width:100%;
+    }
+}
