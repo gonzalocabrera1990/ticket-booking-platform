@@ -3,4 +3,5 @@ from . import views
 
 urlpatterns = [
     path('', views.index_view, name='index'),
+    path('api/cargar-mas-eventos/', views.cargar_mas_eventos_view, name='cargar_mas_eventos'),
 ]

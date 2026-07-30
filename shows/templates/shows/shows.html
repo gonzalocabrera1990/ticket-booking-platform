@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}
+Eventos | {{ evento.title }}
+{% endblock %}
+
+{% block extra_css %}
+
+<link rel="stylesheet" href="{% static 'shows/css/styles.css' %}">
+
+{% endblock %}
+
+{% block content %}
+
+<!-- HERO DINÁMICO -->
+<header class="hero">
+    <!-- Se usa la imagen remota que inyectamos en el Seeder -->
+    <img src="{{ evento.image_url }}" alt="{{ evento.title }}">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+        <h1>{{ evento.title }}</h1>
+        <div class="hero-meta">
+            <div class="meta-item">
+                🎵 {{ evento.category.name }}
+            </div>
+            {% if shows %}
+            <div class="meta-item">
+                🏟️ Multiples Recintos ({{ shows.count }} Fechas)
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</header>
+
+<!-- CONTENT -->
+<main class="container">
+    <div class="content-grid">
+
+        <!-- DESCRIPTION -->
+        <div class="description-box">
+            <h2 class="section-title">Sobre el espectáculo</h2>
+            <p class="description">
+                {{ evento.description|linebreaks }}
+            </p>
+        </div>
+
+        <!-- SIDEBAR DE SELECCIÓN COMERCIAL -->
+        <aside class="ticket-card">
+            {% if precio_minimo %}
+            <div class="price">
+                Desde ${# {{ precio_minimo|floatformat:0 }} #}
+            </div>
+            {% endif %}
+
+            <p>
+                Seleccioná la fecha y función en la que deseas asistir para acceder al mapa interactivo de ubicaciones.
+            </p>
+            {% if shows %}
+            <div class="date-selector-box">
+                <label for="showSelect" style="display:block; margin-bottom:8px; font-weight:600; color:#333;">
+                    Seleccionar Función:
+                </label>
+                <select id="showSelect" class="date-select">
+                    {% for show in shows %}
+                    {# Cambiá 'ver_mapa' por el 'name' real de la ruta del mapa en tu urls.py si es diferente #}
+                    <option value="{{ show.id }}" data-url="{% url 'ver_mapa' show_id=show.id %}">
+                        {{ show.date|date:"d \d\e F Y - H:i" }} Hs. ({{ show.place.name }})
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <button class="buy-button" id="btnIrAlMapa">
+                Ver Disponibilidad y Mapa
+            </button>
+            {% else %}
+            <div class="no-shows">
+                No hay funciones programadas próximamente.
+            </div>
+            {% endif %}
+        </aside>
+
+    </div>
+</main>
+{% endblock %}
+
+{% block javascript %}
+<script>
+const btnIrAlMapa = document.getElementById("btnIrAlMapa");
+const showSelect = document.getElementById("showSelect");
+
+if (btnIrAlMapa && showSelect) {
+    btnIrAlMapa.addEventListener("click", () => {
+        // Obtenemos la opción estructurada que el usuario tiene seleccionada
+        const selectedOption = showSelect.options[showSelect.selectedIndex];
+        
+        // Extraemos la URL nativa que Django renderizó para esa función específica
+        const urlDestino = selectedOption.getAttribute("data-url");
+
+        if (urlDestino) {
+            window.location.href = urlDestino;
+        } else {
+            // Plan B de contingencia por si la etiqueta de Django falla en renderizar
+            const showId = showSelect.value;
+            window.location.href = `/show/${showId}/mapa/`;
+        }
+    });
+}
+</script>
+
+{% endblock %}
