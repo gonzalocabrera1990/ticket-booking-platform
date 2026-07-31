@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}Resultados de Búsqueda | EventLive{% endblock %}
+
+{% block extra_css %}
+
+<link rel="stylesheet" href="{% static 'shows/css/styles.css' %}">
+
+{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 20px 0;">
+
+    <div class="search-section">
+
+        <h2 class="section-title" style="text-align:center;">
+            Encontrá tu próximo show
+        </h2>
+        <form method="GET" action="{% url 'buscar_shows' %}" class="search-container">
+
+            <input type="text" name="q" value="{{ query_texto }}" placeholder="Escribí otro artista, estadio...">
+
+            <select name="category">
+                <option value="">Todas las categorías</option>
+                {% for cat in categorias %}
+                <option value="{{ cat.slug }}" {% if query_categoria == cat.slug %}selected{% endif %}>
+                    {{ cat.name }}
+                </option>
+                {% endfor %}
+            </select>
+
+            <button type="submit" class="btn btn-primary">
+                Buscar de nuevo
+            </button>
+        </form>
+    </div>
+
+    <div class="results-section">
+        <h2 style="margin-top: 40px;">
+            {% if query_texto or query_categoria %}
+            Resultados para:
+            <span style="color: #666; font-style: italic;">
+                {% if query_texto %}"{{ query_texto }}"{% endif %}
+                {% if query_categoria %} [Categoría: {{ query_categoria }}]{% endif %}
+            </span>
+            {% else %}
+            Todos los espectáculos disponibles
+            {% endif %}
+        </h2>
+        <p style="margin-top: 40px; color: #777;">Se encontraron {{ shows.count }} espectáculos activos.</p>
+        <hr>
+
+        {% if events %}
+        <div
+            style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; margin-top: 20px;">
+            {% for event in events %}
+            <div class="show-card"
+                style="border: 1px solid #eee; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); background: white;">
+
+                {% if event.image_url %}
+                <img src="{{ event.image_url }}" alt="{{ event.title }}"
+                    style="width: 100%; height: 180px; object-fit: cover;">
+                {% endif %}
+
+                <div style="display: flex; flex-direction: column; justify-content: space-around;  padding: 15px;" >
+                    {% if event.category %}
+                    <span class="badge"
+                        style="background-color: {{ event.category.color_hex }}; color: white; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem;">
+                        {{ event.category.name }}
+                    </span>
+                    {% else %}
+                    <span class="badge"
+                        style="background-color: #6c757d; color: white; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem;">
+                        General
+                    </span>
+                    {% endif %}
+
+                    <h3 style="color: black; margin: 10px 0 5px 0; font-size: 1.2rem;">{{ event.title }}</h3>
+
+                    <p style="color: #007bff; font-size: 0.9rem; margin: 0 0 15px 0; font-weight: bold;">
+                        🎤 {{ event.shows.count }} {% if event.shows.count > 1 %}fechas disponibles{% else %}única
+                        función{% endif %}
+                    </p>
+
+                    <a href="{% url 'shows' event_id=event.id %}" class="btn-ver-entradas"
+                        style="display: block; text-align: center; background: #28a745; color: white; padding: 10px; border-radius: 4px; text-decoration: none; font-weight: bold;">
+                        Ver Entradas & Mapa
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div
+            style="text-align: center; padding: 60px 20px; background: #fdfdfd; border: 1px dashed #ccc; border-radius: 8px; margin-top: 30px;">
+            <span style="font-size: 3rem;">🔍</span>
+            <h3 style="margin-top: 15px; color: #555;">No encontramos espectáculos que coincidan con tu búsqueda.</h3>
+            <p style="color: #888;">Probá escribiendo el nombre de otra banda, verificando la ortografía, o
+                seleccionando otra categoría.</p>
+            <a href="{% url 'buscar_shows' %}"
+                style="display: inline-block; margin-top: 10px; color: #007bff; text-decoration: underline; font-weight: bold;">
+                Ver toda la cartelera
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.db import connection
 from django.db.models import Q
-from .models import Show, ShowSector, MapLayoutObject, Event
+from .models import ShowPlace, Show, ShowSector, MapLayoutObject, Category, Event
 
 def shows_view(request, event_id):
     # Traemos el evento o tiramos 404
@@ -19,6 +19,39 @@ def shows_view(request, event_id):
         'evento': evento,
         'shows': shows,
         'precio_minimo': precio_minimo
+    })
+
+def buscar_shows(request):
+    """Vista exclusiva para procesar y renderizar los resultados de búsqueda"""
+    categorias = Category.objects.all()
+    
+    # Capturamos los parámetros del formulario GET
+    query_texto = request.GET.get('q', '').strip()
+    query_categoria = request.GET.get('category', '').strip()
+    
+    # IMPORTANTE: Eliminamos 'place' del select_related porque no existe en Show.
+    # Usamos distinct() al final para evitar que si un show tiene 5 sectores, 
+    # aparezca 5 veces repetido en los resultados de búsqueda.
+    #resultados = Show.objects.select_related('category').order_by('date').distinct()
+    resultados = Event.objects.select_related('category').filter(shows__isnull=False).distinct()
+    # Aplicamos filtros si el usuario ingresó datos
+    if query_texto:
+        resultados = resultados.filter(
+            Q(title__icontains=query_texto) |
+            Q(description__icontains=query_texto) |
+            # Buscamos de forma segura si el nombre del estadio coincide con alguna de sus funciones
+            Q(shows__place__name__icontains=query_texto) |
+            Q(shows__place__address__city__icontains=query_texto)
+        ).distinct()
+        
+    if query_categoria:
+        resultados = resultados.filter(category__slug=query_categoria)
+
+    return render(request, 'shows/resultados_busqueda.html', {
+        'events': resultados,
+        'categorias': categorias,
+        'query_texto': query_texto,
+        'query_categoria': query_categoria,
     })
 
 # CÓMO DEBERÍA VERSE TU VISTA DEL MAPA
@@ -39,9 +72,7 @@ def vista_del_mapa(request, show_id):
     show_sectores = ShowSector.objects.filter(show=show)
     layout_objects = MapLayoutObject.objects.filter(place=estadio)
     fecha_formateada = show.date.strftime("%Y-%m-%d %H:%M")
-    # print("show_sectores[0].price", show_sectores[0].price)
-    # print("show_sectores[0].available", show_sectores[0].available)
-    # print("show_sectores[0].id", show_sectores[0].id)
+
     return render(request, 'shows/detalle_show.html', {
         'show': show,
         'place': estadio,
