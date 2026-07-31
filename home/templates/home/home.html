@@ -122,39 +122,30 @@ Eventos | Inicio
         BUSQUEDA
     ========================== -->
 
-    <section>
+<section>
 
-        <div class="search-section">
+    <div class="search-section">
 
-            <h2 class="section-title" style="text-align:center;">
-                Encontrá tu próximo show
-            </h2>
+        <h2 class="section-title" style="text-align:center;">
+            Encontrá tu próximo show
+        </h2>
 
-            <form class="search-container">
+        <form method="GET" action="{% url 'buscar_shows' %}" class="search-container">
+            <input type="text" name="q" placeholder="Buscar por artista, estadio o ciudad...">
 
-                <input
-                    type="text"
-                    placeholder="Buscar espectáculos..."
-                >
+            <select name="category">
+                <option value="">Todas las categorías</option>
+                {% for cat in categorias %}
+                <option value="{{ cat.slug }}">{{ cat.name }}</option>
+                {% endfor %}
+            </select>
 
-                <select>
-                    <option>Categorías</option>
-                    <option>Rock</option>
-                    <option>Pop</option>
-                    <option>Electrónica</option>
-                    <option>Teatro</option>
-                    <option>Festivales</option>
-                </select>
+            <button type="submit" class="btn btn-primary">Buscar</button>
+        </form>
 
-                <button class="btn btn-primary">
-                    Buscar
-                </button>
+    </div>
 
-            </form>
-
-        </div>
-
-    </section>
+</section>
 
 {% endblock %}
 {% block javascript %}

@@ -308,6 +308,7 @@ class Command(BaseCommand):
         movistar = dict_estadios["Movistar Arena"]
         luna_park = dict_estadios["Estadio Luna Park"]
         minella = dict_estadios["Estadio José María Minella"]
+        gran_rex = dict_estadios["Teatro Gran Rex"]
 
         for item in SHOWS_POOL:
             # Creamos el evento de marketing estático
@@ -325,6 +326,9 @@ class Command(BaseCommand):
                 cant_funciones = random.choice([2, 3]) # Simulamos múltiples noches (giras de estadios)
             elif item["cat"] in ["Trap & Hip-Hop", "Electrónica", "Pop"]:
                 estadio_destino = random.choice([movistar, luna_park])
+                cant_funciones = random.choice([1, 2])
+            elif item["cat"] in ["Teatro"]:
+                estadio_destino = gran_rex
                 cant_funciones = random.choice([1, 2])
             else:
                 estadio_destino = random.choice([minella, luna_park])
