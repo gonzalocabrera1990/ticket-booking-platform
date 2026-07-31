@@ -1,0 +1,11 @@
+{% for evento in all_dashboard %}
+    <a href="{% url 'shows' event_id=evento.id %}" class="card-grid">
+        <div class="card">
+            <img src="{{ evento.image_url }}" alt="{{ evento.title }}">
+            <div class="card-overlay"></div>
+            <div class="card-info">
+                <h3>{{ evento.title }}</h3>
+            </div>
+        </div>
+    </a>
+{% endfor %}

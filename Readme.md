@@ -105,6 +105,29 @@ python manage.py migrate
 
 ```
 
+### 7. Cargar Datos de Prueba (Seeds / Fixtures)
+
+Para usar la aplicacion y probar la UI con informacion de la base de datos necesitamos poblarla con lugares y sectores, shows musicales, teatros y categorías iniciales. Corre el comando de carga de datos:
+
+Comando para Linux
+```bash
+python manage.py shell < seeds/seed_completo.py
+
+```
+
+Comando para Windows
+```bash
+python manage.py shell -c "import seeds.seed_completo"
+
+```
+
+La aplicacion Admin de Django tambien esta en funcionamiento para agregar informacion, en base a los modelos que usa la base de datos.
+Necesitamos crear un usuario con permisos para poder usarla. Debemos correr el siguiente comando y llenar los datos que te pide la consola:
+
+```bash
+python manage.py createsuperuser
+
+```
 
 ## 💻 Uso de la Aplicación
 
@@ -172,6 +195,12 @@ docker compose exec web python manage.py migrate
 Crea una cuenta de superusuario para acceder al panel de administración de Django:
 ```bash
 docker compose exec web python manage.py createsuperuser
+```
+
+### Paso 3: Correr el seed completo de datos
+Llena la base de datos con información de prueba inicial ejecutando el script de preparación:
+```bash
+docker compose exec -T web python manage.py shell < seeds/seed_completo.py
 ```
 
 ## 🛑 Detener la Aplicación

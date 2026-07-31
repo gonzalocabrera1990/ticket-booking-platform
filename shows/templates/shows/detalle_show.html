@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Detalle Show | EventLive
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'shows/css/styles.css' %}">
+
+{% endblock %}
+
+{% block content %}
+
+{% if show_sectors %}
+<div style="display: flex; gap: 20px; flex-wrap: wrap;">
+
+    <div style="flex: 1; min-width: 300px; margin-top: 100px;">
+        <div class="teatro-container">
+            <h1>{{ show.event }}</h1>
+            <p><strong>Fecha:</strong> {{ fecha_formateada }}</p>
+            <p><strong>Lugar:</strong> {{ place.name }}</p>
+            <p><strong>Dirección:</strong> {{ place.address.street }}, {{ place.address.city }}</p>
+            <hr>
+        </div>
+
+        <svg viewBox="{{ place.viewbox }}" width="60%" height="auto" xmlns="http://www.w3.org/2000/svg"
+            style="display: flex; align-items: center; justify-content: center; margin-top: 100px;">
+            <rect width="100%" height="100%" fill="#ffffff" />
+
+            {% for ss in show_sectors %}
+            {% if ss.sector.polygon_geometry.type == "path" %}
+            <path id="{{ ss.sector.slug }}" d="{{ ss.sector.polygon_geometry.d }}"
+                fill="{{ ss.sector.polygon_geometry.fill }}" class="sector-cliqueable" data-name="{{ ss.sector.name }}"
+                data-precio="{{ ss.price }}" data-disponibles="{{ ss.sector.capacity }}" data-id-comercial="{{ ss.id }}" />
+            {% elif ss.sector.polygon_geometry.type == "rect" %}
+            <rect id="{{ ss.sector.slug }}" x="{{ ss.sector.polygon_geometry.x }}"
+                y="{{ ss.sector.polygon_geometry.y }}" width="{{ ss.sector.polygon_geometry.width }}"
+                height="{{ ss.sector.polygon_geometry.height }}" fill="{{ ss.sector.polygon_geometry.fill }}"
+                class="sector-cliqueable" data-name="{{ ss.sector.name }}" data-precio="{{ ss.price }}"
+                data-disponibles="{{ ss.sector.capacity }}" data-id-comercial="{{ ss.id }}" />
+            {% endif %}
+            {% endfor %}
+
+            {% for obj in layout_objects %}
+            {% if obj.geometry.type == "rect" %}
+            <rect x="{{ obj.geometry.x }}" y="{{ obj.geometry.y }}" width="{{ obj.geometry.width }}"
+                height="{{ obj.geometry.height }}" fill="{{ obj.geometry.fill|default:'#333333' }}" />
+            <text fill="white" font-family="Arial, sans-serif" font-size="{{ obj.geometry.font_size }}"
+                text-anchor="middle" font-weight="bold" , letter-spacing="0em" ,>
+                <tspan x="{{ obj.geometry.text_x }}" y="{{ obj.geometry.text_y }}">
+                    {{ obj.name|upper }}
+                </tspan>
+
+                {% elif obj.geometry.type == "path" %}
+                <path d="{{ obj.geometry.d }}" fill="{{ obj.geometry.fill|default:'#333333' }}" />
+                <text fill="white" font-family="Arial, sans-serif" font-size="{{ obj.geometry.font_size }}"
+                    text-anchor="middle" font-weight="bold" , letter-spacing="0em" ,>
+                    <tspan x="{{ obj.geometry.text_x }}" y="{{ obj.geometry.text_y }}">
+                        {{ obj.name|upper }}
+                    </tspan>
+                </text>
+                {% endif %}
+                {% endfor %}
+        </svg>
+    </div>
+</div>
+
+{% else %}
+<div class="error-box" style="text-align: center; padding: 50px;">
+    <h3>El mapa de este espectáculo no se encuentra disponible actualmente.</h3>
+    <p>Por favor, intenta más tarde o ponte en contacto con soporte.</p>
+</div>
+{% endif %}
+<div id="info-panel"
+    style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 4px; text-align: center;">
+    <p style="color: #666;">Haz clic en cualquier sector del mapa para ver la disponibilidad y precios.</p>
+</div>
+<div id="panel-info"
+    style="display: none; color: black; padding: 20px; border: 1px solid #ccc; border-radius: 8px; background: #fafafa; margin-top: 80px;">
+    <h3 id="info-nombre-sector" style="margin-top: 0;"></h3>
+    <p><strong>Precio:</strong> $<span id="info-precio"></span></p>
+    <p><strong>Disponibles:</strong> <span id="info-disponibles"></span> asientos</p>
+    <form method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="show_sector_id" id="btn-comprar">
+        
+        <div class="mb-3">
+            <label>Cantidad de entradas:</label>
+            <input type="number" name="quantity" value="1" min="1" max="6" class="form-control">
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100" >
+            🚀 Proceder al Pago
+        </button>
+    </form>
+</div>
+
+{% endblock %}
+
+{% block javascript %}
+<script>
+    // Esperamos que el árbol DOM esté completamente disponible
+    document.addEventListener('DOMContentLoaded', function () {
+
+        document.querySelectorAll('.sector-cliqueable').forEach(sector => {
+            sector.addEventListener('click', function () {
+                // Extraemos anel-infolas propiedades dinámicas inyectadas por ShowSector
+                const name = this.getAttribute('data-name') || 'Sector sin nombre';
+                const precio = this.getAttribute('data-precio') || '0';
+                const disponibles = parseInt(this.getAttribute('data-disponibles')) || 0;
+                const showSectorId = this.getAttribute('data-id-comercial');
+
+                // Buscamos e interactuamos con el panel lateral
+                const panelFijo = document.getElementById('panel-info');
+                const panelInfo = document.getElementById('info-panel');
+                if (panelFijo) {
+                    const elNombre = document.getElementById('info-nombre-sector');
+                    const elPrecio = document.getElementById('info-precio');
+                    const elDisponibles = document.getElementById('info-disponibles');
+                    const btnComprar = document.getElementById('btn-comprar');
+
+                    if (elNombre) elNombre.innerText = name;
+                    if (elPrecio) elPrecio.innerText = precio;
+                    if (elDisponibles) elDisponibles.innerText = disponibles;
+
+                    // Si no quedan entradas, cambiamos el color y deshabilitamos el botón de compra
+                    if (btnComprar) {
+                        if (disponibles <= 0) {
+                            btnComprar.innerText = "Agotado";
+                            btnComprar.style.background = "#dc3545";
+                            btnComprar.disabled = true;
+                        } else {
+                            //btnComprar.innerText = "Seleccionar Entradas";
+                            //btnComprar.style.background = "#28a745";
+                            btnComprar.disabled = false;
+                            // Atamos el ID comercial al botón por si lo usás en el envío del formulario
+                            btnComprar.setAttribute('value', showSectorId);
+                        }
+                    }
+
+                    // Mostramos el panel contenedor
+                    panelFijo.style.display = 'block';
+                    panelInfo.style.display = 'none';
+                }
+            });
+        });
+
+    });
+</script>
+{% endblock %}
