@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}
+Registro | EventLive
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'signup/css/signup.css' %}">
+{% endblock %}
+
+{% block content %}
+<!-- =====================================
+        BACKGROUND
+    ====================================== -->
+<div class="background-glow">
+    <div class="glow glow-1"></div>
+    <div class="glow glow-2"></div>
+</div>
+<!-- =====================================
+        SIGNUP SECTION
+    ====================================== -->
+<section class="signup-wrapper">
+    <div class="signup-container">
+        <!-- LEFT -->
+        <div class="signup-left">
+            <div class="left-content">
+                <h1>
+                    Viví los mejores shows.
+                </h1>
+                <p>
+                    Creá tu cuenta para acceder
+                    a eventos, entradas exclusivas,
+                    historial de compras y mucho más.
+                </p>
+                <div class="feature-box">
+                    <h3>
+                        🎟️ Acceso rápido
+                    </h3>
+                    <p>
+                        Comprá entradas,
+                        seguí tus eventos favoritos
+                        y recibí novedades
+                        personalizadas.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <!-- RIGHT -->
+        <div class="signup-right">
+            <div class="form-container">
+                <h2 class="form-title">
+                    Crear cuenta
+                </h2>
+                <p class="form-subtitle">
+                    Completá tus datos para comenzar.
+                </p>
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {% if form.errors %}
+                    <div>{{form.errors}}</div>
+                    {% endif %}
+                    <div class="form-grid">
+                        <!-- NOMBRE -->
+                        <div class="input-group">
+                            <label>
+                                Nombre
+                            </label>
+                            {{ form.first_name }}
+                        </div>
+                        <!-- APELLIDO -->
+                        <div class="input-group">
+                            <label>
+                                Apellido
+                            </label>
+                            {{ form.last_name }}
+                        </div>
+                        <!-- FECHA -->
+                        <div class="input-group">
+                            <label>
+                                Fecha nacimiento
+                            </label>
+                            {{ form.birth }}
+                        </div>
+                        <!-- DNI -->
+                        <div class="input-group">
+                            <label>
+                                DNI
+                            </label>
+                            {{ form.dni }}
+                        </div>
+                        <!-- EMAIL -->
+                        <div class="input-group full">
+                            <label>
+                                Email
+                            </label>
+                            {{ form.email }}
+                        </div>
+                        <!-- IMG -->
+                        <div class="input-group full">
+                            <label>
+                                Imagen perfil
+                            </label>
+                            {{ form.img }}
+                        </div>
+                        <!-- PASSWORD -->
+                        <div class="input-group">
+                            <label>
+                                Contraseña
+                            </label>
+                            {{ form.password1 }}
+                        </div>
+                        <!-- PASSWORD 2 -->
+                        <div class="input-group">
+                            <label>
+                                Repetir contraseña
+                            </label>
+                            {{ form.password2 }}
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-submit">
+                        Continuar
+                    </button>
+                </form>
+                <div class="bottom-link">
+                    ¿Ya tenés cuenta?
+                    <a href="">
+                        Iniciar sesión
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

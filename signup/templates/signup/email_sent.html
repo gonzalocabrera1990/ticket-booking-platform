@@ -1,0 +1,67 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Enviado | EventLive</title>
+    <!-- GOOGLE FONTS
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+    <link rel="stylesheet" href="{% static 'signup/css/address.css' %}"> -->
+    <link rel="stylesheet" href="{% static 'signup/css/styles.css' %}">
+</head>
+
+<body>
+    <section class="verification-section">
+        <div class="verification-card">
+            <div class="verification-icon">
+                ✉️
+            </div>
+            <h1>
+                Revisá tu correo electrónico
+            </h1>
+            <p class="main-text">
+                Tu cuenta fue creada correctamente.
+            </p>
+            <p class="secondary-text">
+                Para poder iniciar sesión y utilizar la plataforma,
+                primero debés activar tu cuenta mediante el enlace
+                que te enviamos por correo electrónico.
+            </p>
+            <div class="info-box">
+                <h3>
+                    ¿Qué tenés que hacer?
+                </h3>
+                <ul>
+                    <li>
+                        Abrí el correo que acabamos de enviarte.
+                    </li>
+                    <li>
+                        Hacé clic en el enlace de activación.
+                    </li>
+                    <li>
+                        Una vez activada tu cuenta podrás iniciar sesión.
+                    </li>
+                </ul>
+            </div>
+            <div class="tip-box">
+                <strong>
+                    ¿No encontrás el correo?
+                </strong>
+                <p>
+                    Revisá las carpetas de Spam, Correo no deseado o Promociones.
+                </p>
+            </div>
+            <a href="{% url 'index' %}" class="home-btn">
+                Volver al inicio
+            </a>
+        </div>
+    </section>
+</body>
+
+</html>
