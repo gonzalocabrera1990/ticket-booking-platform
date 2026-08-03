@@ -39,8 +39,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'cities_light',
     'home',
     'shows',
+    'signup',
 ]
 
 MIDDLEWARE = [
@@ -129,3 +131,6 @@ MEDIA_URL = '/media/'
 
 # Ruta física en tu computadora donde se guardarán los archivos cargados
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+AUTH_USER_MODEL = 'signup.User'
+CITIES_LIGHT_INCLUDE_COUNTRIES = ['AR']
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

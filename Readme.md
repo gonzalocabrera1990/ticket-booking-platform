@@ -104,6 +104,23 @@ python manage.py makemigrations
 python manage.py migrate
 
 ```
+El proyecto utiliza la libreria **django-cities-light** para cargar en la base de datos informacion util para elgir y guardar las direcciones de los usuarios.
+En settings.py, en la propiedad CITIES_LIGHT_INCLUDE_COUNTRIES, debemos fijar los paises que se van a usar en la aplicacion. Dependiendo de los elegidos en esta lista, son los que guardara en la base de datos.
+
+```python
+# django-ticket/settings.py
+
+CITIES_LIGHT_INCLUDE_COUNTRIES = ['AR']
+
+```
+
+Ya habiendo corrido python manage.py migrate, ejecuta:
+
+```bash
+python manage.py cities_light
+
+```
+Este comando tardara un tiempo ya que dependiendo de los paises usados en CITIES_LIGHT_INCLUDE_COUNTRIES, guardara en la base de datos los paises, sus provincias/estados/regiones, y sus ciudades.
 
 ### 7. Cargar Datos de Prueba (Seeds / Fixtures)
 

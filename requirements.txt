@@ -1,8 +1,17 @@
 asgiref==3.12.1
 Django==6.0.7
+django-autoslug==1.9.9
+django-cities-light==3.11
 pillow==12.3.0
+progressbar2==4.5.0
+psutil==7.2.2
 psycopg==3.3.4
 psycopg-binary==3.3.4
 python-dotenv==1.2.2
+python-utils==4.0.0
+pytz==2026.3.post1
+six==1.17.0
 sqlparse==0.5.5
+typing_extensions==4.16.0
 tzdata==2026.3
+Unidecode==1.4.0
