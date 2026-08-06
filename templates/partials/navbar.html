@@ -1,25 +1,43 @@
  <nav class="navbar" id="navbar">
     <div class="logo">
-        <a href="/">EVENT<span>LIVE</span></a>
+            <a href="{% url 'index' %}">EVENT<span>LIVE</span></a>
     </div>
     <div class="nav-buttons">
-        <a href="/" class="btn btn-nav btn-outline">
-            Login
-        </a>
-        <a href="{% url 'signup' %}" class="btn btn-nav btn-primary">
-            Registro
-        </a>
+        {% if request.user.is_authenticated %}
+            <form method="POST" action="{% url 'logout' %}" >
+                {% csrf_token %}
+                <button type="submit" class="nav-link nav-link-signup">
+                    Logout
+                </button>
+            </form>
+        {% else %}
+            <a href="{% url 'login' %}" class="btn btn-nav btn-outline">
+                
+                    Login
+            </a>
+            <a href="{% url 'signup' %}" class="btn btn-nav btn-primary">
+                
+                    Registro
+                
+            </a>
+        {% endif %}
     </div>
+
 </nav>
 {% block extra_js %}
     <script>
+
         const navbar = document.getElementById("navbar");
+
         window.addEventListener("scroll", () => {
+
             if(window.scrollY > 40){
                 navbar.classList.add("scrolled");
             }else{
                 navbar.classList.remove("scrolled");
             }
+
         });
+
     </script>
 {% endblock %}

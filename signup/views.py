@@ -175,7 +175,7 @@ def activate_account_view(request, uidb64, token):
         # MENSAJE DE ÉXITO EN EL LOGIN
         messages.success(request, '¡Tu cuenta ha sido activada con éxito! Ya podés ingresar tus credenciales.')
         return redirect(
-            'index'
+            'login'
         )
 
     else:
