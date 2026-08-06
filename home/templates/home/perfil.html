@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}
+   Mi Perfil | EventLive
+{% endblock %}
+
+{% block extra_css %}
+<link
+    rel="stylesheet"
+    href="{% static 'home/css/styles.css' %}"
+>
+{% endblock %}
+
+{% block content %}
+    <div class="profile-layout">
+        <div class="profile-card user-info-card">
+            <div class="avatar-container">
+                {% if user.img %}
+                    <img src="{{ user.img.url }}" alt="Foto de {{ user.first_name }}" class="user-avatar">
+                {% else %}
+                    <div class="user-avatar-placeholder">{{ user.first_name|slice:":1" }}{{ user.last_name|slice:":1" }}</div>
+                {% endif %}
+            </div>
+            
+            <h2>{{ user.first_name }} {{ user.last_name }}</h2>
+            <p class="user-email">{{ user.email }}</p>
+            
+            <hr class="divider">
+            
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">DNI</span>
+                    <span class="info-value">{{ user.dni }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Fecha de Nacimiento</span>
+                    <span class="info-value">{{ user.birth|date:"d/m/Y" }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-card addresses-card">
+            <h3>🏠 Mis Direcciones</h3>
+            <p class="section-subtitle">Gestioná tus ubicaciones para el envío de entradas físicas si corresponde.</p>
+            
+            <div class="addresses-grid">
+                {% for dir in direcciones %}
+                    <div class="address-item {% if dir.is_default %}default-address{% endif %}">
+                        <div class="address-header">
+                            <span class="address-label">{{ dir.label }}</span>
+                            {% if dir.is_default %}
+                                <span class="badge-default">Predeterminada</span>
+                            {% endif %}
+                        </div>
+                        <p class="address-text">
+                            {{ dir.street }} {{ dir.street_number }}
+                            {% if dir.floor or dir.apartment %}
+                                <br><small>Piso {{ dir.floor|default:"-" }} - Depto {{ dir.apartment|default:"-" }}</small>
+                            {% endif %}
+                        </p>
+                        <p class="address-footer">{{ dir.city.name }} (CP: {{ dir.postal_code }})</p>
+                    </div>
+                {% empty %}
+                    <p class="empty-message">No tenés direcciones registradas todavía.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

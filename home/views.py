@@ -49,3 +49,14 @@ def cargar_mas_eventos_view(request):
         'quedan_mas': quedan_mas
     })
 
+@login_required
+def perfil_view(request):
+    # Traemos las direcciones del usuario usando el related_name='addresses'
+    direcciones = request.user.addresses.all().order_by('-is_default', '-created_at')
+    
+    context = {
+        'user': request.user,
+        'direcciones': direcciones
+    }
+    print(context['user'].img.url)
+    return render(request, 'home/perfil.html', context)
