@@ -1,0 +1,158 @@
+/* Variables de color para que los adaptes a tu marca */
+:root {
+    --primary-color: #2563eb;       /* Azul principal */
+    --primary-hover: #1d4ed8;       /* Azul al pasar el mouse */
+    --success-color: #16a34a;       /* Verde para el éxito */
+    --info-bg: #eff6ff;             /* Fondo celeste claro */
+    --info-border: #3b82f6;         /* Borde celeste */
+    --success-bg: #f0fdf4;          /* Fondo verde claro */
+    --success-border: #22c55e;      /* Borde verde */
+    --text-main: #1f2937;           /* Gris oscuro para texto */
+    --text-muted: #4b5563;          /* Gris medio para subtítulos */
+    --bg-body: #f3f4f6;             /* Gris muy claro para el fondo de pantalla */
+}
+
+/* Contenedor principal: Centra la tarjeta vertical y horizontalmente */
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 70vh; /* Toma buena parte de la pantalla */
+    padding: 20px;
+    font-family: system-ui, -apple-system, sans-serif;
+}
+
+/* La Tarjeta de los formularios */
+.auth-card, .auth-alert {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 40px;
+    width: 100%;
+    max-width: 450px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Textos y cabeceras */
+.auth-card h2 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: var(--text-main);
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.auth-subtitle {
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 25px;
+}
+
+/* Estilado de los campos que genera Django (form.as_p) */
+.auth-form p {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column; /* Pone la etiqueta arriba del input */
+    gap: 6px;
+}
+
+.auth-form label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.auth-form input {
+    padding: 10px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 15px;
+    color: var(--text-main);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.auth-form input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+/* Ayudas de Django (ej: "La contraseña debe tener...") */
+.auth-form .helptext {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    line-height: 1.4;
+}
+
+/* Botones */
+.btn-submit {
+    display: inline-block;
+    width: 100%;
+    padding: 12px;
+    background-color: var(--primary-color);
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-top: 10px;
+}
+
+.btn-submit:hover {
+    background-color: var(--primary-hover);
+}
+
+.btn-submit.success {
+    background-color: var(--success-color);
+}
+
+.btn-submit.success:hover {
+    filter: brightness(0.9);
+}
+
+/* Alertas (Done y Complete) */
+.auth-alert h4 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-size: 20px;
+}
+
+.auth-alert.info {
+    background-color: var(--info-bg);
+    border-left: 5px solid var(--info-border);
+    color: #1e40af;
+}
+
+.auth-alert.success {
+    background-color: var(--success-bg);
+    border-left: 5px solid var(--success-border);
+    color: #166534;
+}
+
+/* Enlaces y acciones */
+.auth-actions {
+    margin-top: 25px;
+}
+
+.btn-link {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: var(--text-main);
+    color: #ffffff;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: 600;
+    transition: background-color 0.2s;
+}
+
+.btn-link:hover {
+    background-color: #000000;
+}
+
+.text-center {
+    text-align: center;
+}

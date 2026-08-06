@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Verificar acceso | EventLive
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'login/css/styles.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="verify-login-section">
+    <div class="verify-card" id="verify-card-box">
+        <div class="verify-icon">🔐</div>
+        <h1>Verificación de acceso</h1>
+        <p class="subtitle">Te enviamos un código de seguridad a tu correo electrónico.</p>
+        <p class="secondary-text">Ingresá el código de 6 dígitos para completar el inicio de sesión.</p>
+        
+        <div id="error-message" class="error-box" style="display: {% if error %}block{% else %}none{% endif %};">
+            {% if error %}{{ error }}{% endif %}
+        </div>
+
+        <div id="form-wrapper">
+            <form id="verify-form" onsubmit="return false;">
+                {% csrf_token %}
+                <div class="code-container">
+                    <input type="text" maxlength="1" class="code-digit">
+                    <input type="text" maxlength="1" class="code-digit">
+                    <input type="text" maxlength="1" class="code-digit">
+                    <input type="text" maxlength="1" class="code-digit">
+                    <input type="text" maxlength="1" class="code-digit">
+                    <input type="text" maxlength="1" class="code-digit">
+                </div>
+                <input type="hidden" name="code" id="full-code">
+                
+                <button type="submit" id="btn-submit" class="verify-btn">
+                    <span id="btn-text">Verificar acceso</span>
+                    <span id="btn-spinner" style="display: none;">⏳ Validando código...</span>
+                </button>
+            </form>
+        </div>
+    </div>
+</section>
+
+<script>
+const digits = document.querySelectorAll('.code-digit');
+const fullCode = document.getElementById('full-code');
+
+// Tu comportamiento nativo de casilleros individuales (Intacto)
+digits.forEach((input, index) => {
+    input.addEventListener('input', () => {
+        input.value = input.value.replace(/[^0-9]/g, '');
+        if(input.value && index < digits.length - 1){
+            digits[index + 1].focus();
+        }
+        updateCode();
+    });
+
+    input.addEventListener('keydown', (event) => {
+        if(event.key === 'Backspace'){
+            if(!input.value && index > 0){
+                digits[index - 1].focus();
+            }
+        }
+    });
+});
+
+function updateCode(){
+    fullCode.value = Array.from(digits).map(input => input.value).join('');
+}
+
+// Envío asíncrono controlado
+document.getElementById('verify-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    updateCode(); 
+
+    const btnText = document.getElementById('btn-text');
+    const btnSpinner = document.getElementById('btn-spinner');
+    const btnSubmit = document.getElementById('btn-submit');
+    const errorBox = document.getElementById('error-message');
+    const cardBox = document.getElementById('verify-card-box');
+    const formWrapper = document.getElementById('form-wrapper');
+    
+    const codigoFinal = fullCode.value;
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    if (codigoFinal.length < 6) {
+        errorBox.innerText = 'Por favor, completá los 6 dígitos del código.';
+        errorBox.style.display = 'block';
+        return;
+    }
+
+    btnText.style.display = 'none';
+    btnSpinner.style.display = 'inline-block';
+    btnSubmit.disabled = true;
+    errorBox.style.display = 'none';
+
+    fetch(window.location.href, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': csrfToken
+        },
+        body: JSON.stringify({ code: codigoFinal })
+    })
+    .then(response => response.json())
+    .then(data => {
+        setTimeout(() => {
+            if (data.success) {
+                window.location.href = data.redirect_url;
+            } else {
+                // ---> AQUÍ SE APLICA EL COMPORTAMIENTO EMOCIONANTE <---
+                if (data.reason === 'expired') {
+                    // Ocultamos el contenedor del formulario por completo
+                    formWrapper.style.display = 'none';
+                    
+                    // Modificamos el ícono y textos superiores de la tarjeta para reflejar la expiración
+                    document.querySelector('.verify-icon').innerText = '⏳';
+                    document.querySelector('h1').innerText = 'Código Expirado';
+                    document.querySelector('.subtitle').innerText = 'Pasaron los 5 minutos de validez de seguridad.';
+                    
+                    // Mostramos el mensaje de error personalizado
+                    errorBox.innerText = data.message;
+                    errorBox.style.display = 'block';
+
+                    // Creamos y agregamos dinámicamente el botón de redirección usando tus clases CSS reales
+                    const loginBtn = document.createElement('a');
+                    loginBtn.href = "{% url 'login' %}"; // Tu ruta al login
+                    loginBtn.className = 'verify-btn';
+                    loginBtn.innerText = 'Volver a iniciar sesión';
+                    loginBtn.style.textDecoration = 'none';
+                    loginBtn.style.display = 'block';
+                    loginBtn.style.marginTop = '20px';
+                    
+                    cardBox.appendChild(loginBtn);
+                } else {
+                    // Si el código solo estaba mal tipeado, se mantiene el comportamiento clásico sin romper nada
+                    errorBox.innerText = data.message;
+                    errorBox.style.display = 'block';
+                    
+                    btnText.style.display = 'inline-block';
+                    btnSpinner.style.display = 'none';
+                    btnSubmit.disabled = false;
+                    
+                    digits.forEach(input => input.value = '');
+                    digits[0].focus();
+                    fullCode.value = '';
+                }
+            }
+        }, 600);
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        errorBox.innerText = 'Error de comunicación con el servidor.';
+        errorBox.style.display = 'block';
+        btnText.style.display = 'inline-block';
+        btnSpinner.style.display = 'none';
+        btnSubmit.disabled = false;
+    });
+});
+</script>
+{% endblock %}

@@ -58,6 +58,11 @@
     transition:0.3s;
 }
 
+.btn-outline{
+    background:transparent;
+    border:1px solid rgba(255,255,255,0.6);
+    color:white;
+}
 
 .btn-outline:hover{
     background:white;
@@ -73,11 +78,46 @@
     transform:translateY(-2px);
     box-shadow:0 10px 25px rgba(123, 97, 255, 0.45);
 }
+.nav-link{
+    padding:11px 22px;
+    border-radius:999px;
+    font-weight:600;
+    transition:0.3s;
+    cursor:pointer;
+}
 
+.nav-link-login{
+    border:1px solid rgba(0,0,0,0.08);
+    color:#111827;
+    background:white;
+}
 
+.nav-link-login:hover{
+    transform:translateY(-2px);
+
+    border-color:#7b61ff;
+
+    color:#6d4dff;
+
+    box-shadow:0 8px 20px rgba(123,97,255,0.15);
+}
  a {
     text-decoration: none;
  }
+
+/* REGISTER ACTIVO */
+
+.nav-link-register{
+    background:linear-gradient(
+        135deg,
+        rgba(255,126,212,0.12),
+        rgba(123,97,255,0.14)
+    );
+    border:1px solid rgba(255,126,212,0.22);
+    color:#d6339c;
+    pointer-events: auto; 
+    cursor: pointer;
+}
 
 /* =========================
     FOOTER
