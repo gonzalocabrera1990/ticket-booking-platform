@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Mis Tickets | EventLive {% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'purchase/css/styles.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="tickets-container">
+    <h2>🎟️ Mis Entradas Adquiridas</h2>
+    <p class="section-subtitle">Presentá estos códigos digitales en los controles de acceso del establecimiento.</p>
+
+    {% for orden in ordenes %}
+    <div class="ticket-voucher">
+        <div class="voucher-body">
+            <span class="voucher-order-tag">Orden #{{ orden.id }}</span>
+            <h3>{{ orden.show.event.title }}</h3>
+
+            <!-- <div class="voucher-details">
+                <p><strong>📍 Lugar:</strong> {{ orden.show.place.name }}</p>
+                <p><strong>⚡ Sector:</strong> {{ orden.show_sector.sector.name }}</p>
+                <p><strong>📅 Fecha de compra:</strong> {{ orden.created_at|date:"d/m/Y H:i" }} hs</p>
+            </div> -->
+            <div class="voucher-details">
+                <p><strong>📍 Lugar:</strong> {{ orden.show.place.name }}</p>
+                <p><strong>⚡ Sector:</strong> {{ orden.show_sector.sector.name }}</p>
+                <p><strong>🗓️ Fecha del Show:</strong> {{ orden.show.date|date:"d \d\e F, Y" }} a las {{ orden.show.date|date:"H:i" }} hs</p>
+                <p><strong>🛒 Fecha de compra:</strong> {{ orden.created_at|date:"d/m/Y H:i" }} hs</p>
+            </div>
+        </div>
+
+        <div class="voucher-stub">
+            <span class="stub-title">Pases de Acceso ({{ orden.quantity }})</span>
+            <div class="stub-codes-list">
+                {% for ticket in orden.tickets.all %}
+                <div class="stub-code-item"
+                    style="border: 1px solid #eee; padding: 10px; border-radius: 6px; margin-bottom: 10px; background: #fff; text-align: center;">
+                    <div style="font-weight: bold; margin-bottom: 5px; font-size: 14px; color: #333;">
+                        Entrada {{ forloop.counter }}
+                    </div>
+
+                    <img src="{{ ticket.get_qr_base64 }}" alt="QR de Acceso"
+                        style="width: 130px; height: 130px; display: block; margin: 0 auto 8px auto; border: 1px solid #f0f0f0; padding: 4px;">
+
+                    <code class="code-uuid"
+                        style="font-size: 11px; display: block; color: #666; word-break: break-all;">
+                                    {{ ticket.ticket_code }}
+                                </code>
+
+                    {% if ticket.is_used %}
+                    <div style="margin-top: 5px;">
+                        <span class="badge-used"
+                            style="background-color: #dc3545; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; display: inline-block;">
+                            🚫 Ya ingresó el {{ ticket.used_at|date:"H:i" }} hs
+                        </span>
+                    </div>
+                    {% else %}
+                    <div style="margin-top: 5px;">
+                        <span class="badge-valid"
+                            style="background-color: #28a745; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; display: inline-block;">
+                            ✅ Válido para ingresar
+                        </span>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="empty-state">
+        <p>Todavía no compraste entradas para ningún evento.</p>
+        <a href="/" class="btn-primary-action">Explorar Eventos</a>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

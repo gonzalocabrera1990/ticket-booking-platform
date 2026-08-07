@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Pasarela de Pago (Simulador)</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body class="bg-light">
+    <div class="container mt-5" style="max-width: 600px;">
+        <div class="card shadow">
+            <div class="card-header bg-dark text-white text-center">
+                <h3>💳 TICKET-MOCK-PAY</h3>
+                <small>Entorno de Pruebas Seguro</small>
+            </div>
+            <div class="card-body text-center">
+                <h5>Estás pagando la Orden #{{ orden.id }}</h5>
+                <p class="text-muted">{{ orden.show.event.name }} - {{ orden.show_sector.sector.name }}</p>
+                <hr>
+                <h2 class="text-success my-4">${{ orden.total_price }} ARS</h2>
+                <p>Cantidad de entradas: <strong>{{ orden.quantity }}</strong></p>
+                <hr>
+                
+                <p class="text-warning">⚠️ Seleccioná cómo querés que responda el simulador:</p>
+                
+                <form action="{% url 'purchase:payment_feedback' %}" method="GET">
+                    <input type="hidden" name="order_id" value="{{ orden.id }}">
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" name="status" value="PAID" class="btn btn-success btn-lg">
+                            ✅ Simular Pago Exitoso (Aprobar)
+                        </button>
+                        <button type="submit" name="status" value="REJECTED" class="btn btn-danger btn-lg">
+                            ❌ Simular Pago Rechazado (Fallar)
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

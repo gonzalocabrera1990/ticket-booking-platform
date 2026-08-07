@@ -30,11 +30,6 @@ urlpatterns = [
         email_verification_sent,
         name='email-verification-sent'
     ),
-    # path(
-    #     'activate/<uidb64>/<token>/',
-    #     activate,
-    #     name='activate'
-    # ),
     path(
         'ajax/load-regions/',
         load_regions,

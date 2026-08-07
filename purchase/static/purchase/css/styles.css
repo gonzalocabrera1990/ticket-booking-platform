@@ -1,0 +1,51 @@
+/* ================= MIS ENTRADAS LAYOUT ================= */
+.tickets-container { max-width: 850px; margin: 0 auto; margin-top: 100px;}
+
+.ticket-voucher {
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    margin-bottom: 25px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+@media (max-width: 640px) {
+    .ticket-voucher { grid-template-columns: 1fr; }
+    .voucher-stub { border-left: none !important; border-top: 2px dashed var(--border-color); }
+}
+
+.voucher-body { padding: 30px; position: relative; }
+.voucher-order-tag { font-size: 11px; background: #f1f5f9; padding: 4px 10px; border-radius: 6px; font-weight: 600; color: var(--text-muted); }
+.voucher-body h3 { margin: 15px 0 10px 0; font-size: 22px; }
+.voucher-details p { margin: 6px 0; font-size: 14px; }
+
+.voucher-stub {
+    padding: 30px;
+    background: #f8fafc;
+    border-left: 2px dashed var(--border-color);
+    display: flex;
+    flex-direction: column;
+}
+
+.stub-title { font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 15px; text-transform: uppercase; }
+.stub-codes-list { display: flex; flex-direction: column; gap: 12px; }
+.stub-code-item { display: flex; flex-direction: column; font-size: 13px; background: #ffffff; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; }
+.code-index { font-weight: 600; font-size: 11px; color: var(--text-muted); }
+.code-uuid { font-family: monospace; color: #0284c7; word-break: break-all; margin-top: 2px; }
+
+.badge-used { background: #ef4444; color: white; font-size: 10px; padding: 2px 6px; border-radius: 4px; width: max-content; margin-top: 4px; }
+.empty-state { text-align: center; padding: 40px; background: white; border-radius: 12px; border: 1px solid var(--border-color); }
+
+.btn-primary-action {
+    display: inline-block;
+    padding: 10px 20px;
+    background: var(--brand-blue);
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    margin-top: 15px;
+    font-weight: 600;
+}

@@ -8,7 +8,7 @@
 
 Antes de comenzar, asegúrate de tener instalado en tu sistema:
 - Python (versión 3.10 o superior)
-- PostgreSQL (versión 14 o superior)
+- PostgreSQL (versión 14 o superior) o Docker
 - Git
 
 ---
@@ -20,8 +20,8 @@ Sigue estos pasos detallados para configurar el entorno de desarrollo local.
 ### 1. Clonar el Repositorio
 Primero, clona este proyecto en tu máquina local y accede al directorio:
 ```bash
-git clone https://github.com/gonzalocabrera90/django-ticket.git
-cd django-ticket
+git clone https://github.com/gonzalocabrera1990/ticket-booking-platform.git
+cd ticket-booking-platform
 
 ### 2. Crear y Activar el Entorno Virtual
 
@@ -29,16 +29,16 @@ Es altamente recomendable aislar las dependencias del proyecto utilizando un ent
 
 * **En Linux/macOS:**
 ```bash
-python3 -m venv venv
-source venv/bin/activate
+python3 -m venv .venv
+source .venv/bin/activate
 
 ```
 
 
 * **En Windows:**
 ```bash
-python -m venv venv
-.\\venv\\Scripts\\activate
+python -m venv .venv
+.venv\Scripts\activate
 
 ```
 
@@ -80,7 +80,7 @@ GRANT ALL PRIVILEGES ON DATABASE eventlive_db TO eventlive_user;
 Modifica el bloque `DATABASES` en el archivo `settings.py` de tu proyecto Django para conectarlo con la base de datos que acabas de crear:
 
 ```python
-# django-ticket/settings.py
+# config/settings.py
 
 DATABASES = {
     'default': {
@@ -108,7 +108,7 @@ El proyecto utiliza la libreria **django-cities-light** para cargar en la base d
 En settings.py, en la propiedad CITIES_LIGHT_INCLUDE_COUNTRIES, debemos fijar los paises que se van a usar en la aplicacion. Dependiendo de los elegidos en esta lista, son los que guardara en la base de datos.
 
 ```python
-# django-ticket/settings.py
+# config/settings.py
 
 CITIES_LIGHT_INCLUDE_COUNTRIES = ['AR']
 
@@ -161,6 +161,30 @@ python manage.py runserver
 
 Abre tu navegador web e ingresa a: `http://127.0.0.1:8000/`
 
+### Simulacion de reserva de entradas
+Para comprobar el funcionamiento del flujo de compra se implemento un archivo para simular reservas.
+Genera ordenes de compras vencidas. Se configura obteniendo informacion de la base de datos.
+
+Comando para Linux
+```bash
+python manage.py shell < seeds/seed_purchase_due.py
+
+```
+Comando para Windows
+```bash
+python manage.py shell -c "import seeds.seed_purchase_due"
+
+```
+Luego verificamos el conteo de entradas del sector para ver si disminuyo.
+Al iniciar un proceso de compra el sistema reserva entradas hasta concretarla.
+Si la compra falla necesitamos liberar esas entradas nuevamente para la venta.
+Para ello ejecutamos:
+
+```bash
+python manage.py liberar_reservas
+
+```
+Limpia las compras fallidas verificando el tiempo transcurrido desde la reserva.
 
 ### Iniciar la aplicacion en Docker
 

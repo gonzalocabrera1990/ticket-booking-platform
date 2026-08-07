@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'shows',
     'signup',
     'login',
+    'purchase'
 ]
 
 MIDDLEWARE = [
@@ -136,3 +137,4 @@ AUTH_USER_MODEL = 'signup.User'
 CITIES_LIGHT_INCLUDE_COUNTRIES = ['AR']
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 LOGIN_URL = 'login'
+PAYMENT_PROCESSOR = 'purchase.payment_processors.MockPaymentProcessor'

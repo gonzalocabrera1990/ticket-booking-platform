@@ -60,3 +60,7 @@ def perfil_view(request):
     }
     print(context['user'].img.url)
     return render(request, 'home/perfil.html', context)
+
+def error_404_redirect_view(request, exception):
+    # Redirecciona directamente a la página de inicio
+    return redirect('index')  # O puedes usar '/' directamente

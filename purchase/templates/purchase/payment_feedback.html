@@ -1,0 +1,66 @@
+<!-- <!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Resultado del Pago</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body class="bg-light">
+    <div class="container mt-5 text-center" style="max-width: 600px;">
+        <div class="alert alert-{{ clase_alerta }} shadow" role="alert">
+            <h4 class="alert-heading">Estado de tu Transacción</h4>
+            <p>{{ mensaje }}</p>
+            <hr>
+            <p class="mb-0">Estado actual de la orden en Base de Datos: <strong>{{ orden.status }}</strong></p>
+        </div>
+        <a href="/" class="btn btn-primary mt-3">Volver al Inicio</a>
+    </div>
+</body>
+</html> -->
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Resultado del Pago</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body class="bg-light">
+    <div class="container mt-5" style="max-width: 600px;">
+        <div class="alert alert-{{ clase_alerta }} shadow text-center" role="alert">
+            <h4 class="alert-heading">Estado de tu Transacción</h4>
+            <p>{{ mensaje }}</p>
+            <hr>
+            <p class="mb-0">Estado actual de la orden en Base de Datos: <strong>{{ orden.status }}</strong></p>
+        </div>
+
+        {% if orden.status == 'PAID' %}
+            <div class="card shadow mt-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">🎟️ Tus Entradas Adquiridas</h5>
+                </div>
+                <ul class="list-group list-group-flush">
+                    {% for ticket in orden.tickets.all %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+                            <div>
+                                <h6 class="mb-0">{{ orden.show.event.name }}</h6>
+                                <small class="text-muted">{{ orden.show_sector.sector.name }}</small>
+                            </div>
+                            <span class="badge bg-secondary p-2 style="font-family: monospace;">
+                                ID: {{ ticket.ticket_code|slice:":8" }}... </span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+        <div class="text-center mt-4">
+            <a href="/" class="btn btn-dark">Volver al Inicio</a>
+        </div>
+    </div>
+</body>
+</html>
