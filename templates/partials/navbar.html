@@ -7,6 +7,9 @@
             <a href="{% url 'perfil' %}" class="nav-link nav-link-register">
                 Perfil
             </a>
+            <a href="{% url 'purchase:my-tickets' %}"  class="nav-link nav-link-register">
+                Mis entradas
+            </a>
             <form method="POST" action="{% url 'logout' %}" >
                 {% csrf_token %}
                 <button type="submit" class="nav-link nav-link-register">

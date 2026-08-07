@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>{{ event.title }}</h1>
+
+<svg
+    width="1000"
+    height="700"
+    style="border:1px solid black;"
+>
+
+    <!-- ESCENARIO -->
+    <rect
+        x="350"
+        y="600"
+        width="300"
+        height="50"
+        fill="black"
+    />
+
+    <text
+        x="450"
+        y="630"
+        fill="white"
+        font-size="20"
+    >
+        ESCENARIO
+    </text>
+
+    <!-- SECTORES -->
+    {% for sector in sectors %}
+
+        <a href="/sector/{{ sector.id }}/">
+
+            <rect
+                x="{{ sector.x }}"
+                y="{{ sector.y }}"
+                width="{{ sector.width }}"
+                height="{{ sector.height }}"
+
+                fill="{{ sector.color }}"
+
+                stroke="white"
+                stroke-width="3"
+
+                style="cursor:pointer;"
+            />
+
+            <text
+                x="{{ sector.x|add:20 }}"
+                y="{{ sector.y|add:40 }}"
+                fill="white"
+                font-size="18"
+            >
+                {{ sector.name }}
+            </text>
+
+        </a>
+
+    {% endfor %}
+
+</svg>
+
+<h2>Sectores disponibles</h2>
+
+<ul>
+
+{% for sector in sectors %}
+
+    <li>
+        {{ sector.name }}
+
+        -
+        Disponibles:
+        {{ sector.available }}
+
+        -
+        ${{ sector.price }}
+    </li>
+
+{% endfor %}
+
+</ul>
+
+{% endblock %}

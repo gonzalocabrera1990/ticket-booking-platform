@@ -32,13 +32,13 @@ Detalle Show | EventLive
             {% if ss.sector.polygon_geometry.type == "path" %}
             <path id="{{ ss.sector.slug }}" d="{{ ss.sector.polygon_geometry.d }}"
                 fill="{{ ss.sector.polygon_geometry.fill }}" class="sector-cliqueable" data-name="{{ ss.sector.name }}"
-                data-precio="{{ ss.price }}" data-disponibles="{{ ss.sector.capacity }}" data-id-comercial="{{ ss.id }}" />
+                data-precio="{{ ss.price }}" data-disponibles="{{ ss.available }}" data-id-comercial="{{ ss.id }}" />
             {% elif ss.sector.polygon_geometry.type == "rect" %}
             <rect id="{{ ss.sector.slug }}" x="{{ ss.sector.polygon_geometry.x }}"
                 y="{{ ss.sector.polygon_geometry.y }}" width="{{ ss.sector.polygon_geometry.width }}"
                 height="{{ ss.sector.polygon_geometry.height }}" fill="{{ ss.sector.polygon_geometry.fill }}"
                 class="sector-cliqueable" data-name="{{ ss.sector.name }}" data-precio="{{ ss.price }}"
-                data-disponibles="{{ ss.sector.capacity }}" data-id-comercial="{{ ss.id }}" />
+                data-disponibles="{{ ss.available }}" data-id-comercial="{{ ss.id }}" />
             {% endif %}
             {% endfor %}
 
@@ -81,7 +81,7 @@ Detalle Show | EventLive
     <h3 id="info-nombre-sector" style="margin-top: 0;"></h3>
     <p><strong>Precio:</strong> $<span id="info-precio"></span></p>
     <p><strong>Disponibles:</strong> <span id="info-disponibles"></span> asientos</p>
-    <form method="POST">
+    <form action="{% url 'purchase:iniciar_pago' %}" method="POST">
         {% csrf_token %}
         <input type="hidden" name="show_sector_id" id="btn-comprar">
         

@@ -127,5 +127,16 @@ class ShowSector(models.Model):
     class Meta:
         unique_together = ('show', 'sector')
 
+    @property
+    def available(self):
+        # 1. Contamos los asientos comprometidos en las órdenes de la app sales
+        asientos_reservados = self.orders.filter(
+            status__in=['PENDING', 'PAID']
+        ).aggregate(models.Sum('quantity'))['quantity__sum'] or 0
+
+        # 2. Buscamos la capacidad en el modelo Sector vinculado
+        # Cambiá 'capacity' por el nombre real que tenga en ese modelo
+        return self.sector.capacity - asientos_reservados
+ 
     def __str__(self):
         return f"{self.show.event.title} ({self.show.date.strftime('%d/%m')}) - {self.sector.name} (${self.price})"
