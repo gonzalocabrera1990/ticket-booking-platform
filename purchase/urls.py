@@ -11,4 +11,5 @@ urlpatterns = [
     path('checkout/feedback/', views.payment_feedback_view, name='payment_feedback'),
     path('orden/iniciar/', views.iniciar_pago_view, name='iniciar_pago'),
     path('my-tickets/', views.my_tickets_view, name='my-tickets'),
+    path('dashboard/organizador/', views.dashboard_organizador, name='dashboard_organizador'),
 ]

@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect
 from django.db import connection
 from shows.models import Show, Category, Event
+from signup.models import User
+from purchase.models import Ticket
 from django.contrib.auth.decorators import login_required
 
 def index_view(request):
@@ -15,6 +17,12 @@ def index_view(request):
     
     categorias = Category.objects.all()
     
+    # Mantenemos las estadísticas de conectividad
+    stats = {
+        'total_shows': Event.objects.count(),
+        'total_users': User.objects.count(),
+        'total_tickets': Ticket.objects.count(),
+    }
     
     db_name = connection.settings_dict.get('NAME', 'N/A')
     db_user = connection.settings_dict.get('USER', 'N/A')
@@ -23,6 +31,7 @@ def index_view(request):
         'dashboard': dashboard,  # Enviamos el QuerySet limpio (puede ir vacío si no hay shows)
         'all_dashboard': all_dashboard,
         'categorias': categorias,
+        'stats': stats,
         'url_name': 'Ruta Raíz (/)',
         'current_url': '/',
         'db_name': db_name,
@@ -58,7 +67,6 @@ def perfil_view(request):
         'user': request.user,
         'direcciones': direcciones
     }
-    print(context['user'].img.url)
     return render(request, 'home/perfil.html', context)
 
 def error_404_redirect_view(request, exception):
