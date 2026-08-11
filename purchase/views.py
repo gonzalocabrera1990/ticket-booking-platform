@@ -229,3 +229,61 @@ def my_tickets_view(request):
     ).prefetch_related('tickets').order_by('-id')
     
     return render(request, 'purchase/my-tickets.html', {'ordenes': ordenes})
+
+
+# dashboard para que el organizador revise los datos del Evento
+@login_required
+def dashboard_organizador(request):
+    # Seguridad Enterprise: Solo permitimos el acceso si el usuario es Staff/Organizador
+    if not request.user.is_staff:
+        return redirect('index') # O la URL de tu home pública
+    
+
+    # 1. Traemos los shows que le pertenecen a este organizador logueado
+    # Buscamos shows cuyo EVENTO tenga como organizador al usuario actual
+    shows = Show.objects.filter(event__organizador=request.user).select_related('event', 'place')
+    
+    # 2. Construimos el paquete de métricas para el template
+    panel_datos = []
+    
+    total_recaudado_global = 0
+    total_tickets_global = 0
+
+    for show in shows:
+        # Sumamos las cantidades y dinero de órdenes aprobadas (PAID) para este show específico
+        metricas_ventas = Order.objects.filter(show=show, status='PAID').aggregate(
+            total_dinero=Sum('total_price'),
+            total_entradas=Sum('quantity')
+        )
+        
+        recaudado = metricas_ventas['total_dinero'] or 0
+        entradas_vendidas = metricas_ventas['total_entradas'] or 0
+        
+        # Calculamos la capacidad total sumando todos los sectores físicos del estadio asignado
+        capacidad_estadio = show.place.sectors.aggregate(Sum('capacity'))['capacity__sum'] or 0
+        
+        # Porcentaje de ocupación para la barra de progreso
+        porcentaje_ocupacion = 0
+        if capacidad_estadio > 0:
+            porcentaje_ocupacion = int((entradas_vendidas / capacidad_estadio) * 100)
+            
+        # Acumuladores globales para las tarjetas de arriba
+        total_recaudado_global += recaudado
+        total_tickets_global += entradas_vendidas
+        
+        panel_datos.append({
+            'show': show,
+            'recaudado': recaudado,
+            'vendidas': entradas_vendidas,
+            'capacidad': capacidad_estadio,
+            'ocupacion_porcentaje': porcentaje_ocupacion
+        })
+        
+    context = {
+        'panel_datos': panel_datos,
+        'total_recaudado_global': total_recaudado_global,
+        'total_tickets_global': total_tickets_global,
+        'cantidad_shows': shows.count()
+    }
+    
+    return render(request, 'purchase/dashboard_organizador.html', context)

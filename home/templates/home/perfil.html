@@ -67,5 +67,21 @@
                 {% endfor %}
             </div>
         </div>
+        <div style="grid-column: 1 / span 2;">
+            {% if request.user.is_staff %}
+            <div
+                style="background-color: #f4f6f9; border: 1px solid #d1d9e0; border-radius: 8px; padding: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.02);">
+                <div>
+                    <h4 style="margin: 0 0 5px 0; color: #111; font-size: 16px;">💼 Panel de Producción Activo</h4>
+                    <p style="margin: 0; color: #666; font-size: 13px;">Tu cuenta corporativa tiene permisos para
+                        gestionar eventos y analizar métricas de ventas.</p>
+                </div>
+                <a href="{% url 'purchase:dashboard_organizador' %}"
+                    style="background-color: #111; color: #fff; text-decoration: none; padding: 10px 20px; border-radius: 6px; font-size: 14px; font-weight: bold; transition: background 0.2s ease; text-align: center; min-width: 140px;">
+                    Ingresar al Dashboard
+                </a>
+            </div>
+            {% endif %}
+        </div>
     </div>
 {% endblock %}
