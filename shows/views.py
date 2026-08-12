@@ -3,6 +3,12 @@ from django.db import connection
 from django.db.models import Q
 from .models import ShowPlace, Show, ShowSector, MapLayoutObject, Category, Event
 
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+from purchase.models import Ticket
+from django.utils import timezone
+
 def shows_view(request, event_id):
     # Traemos el evento o tiramos 404
     evento = get_object_or_404(Event, id=event_id)
@@ -80,3 +86,65 @@ def vista_del_mapa(request, show_id):
         'layout_objects': layout_objects,
         'fecha_formateada': fecha_formateada
     })
+
+@csrf_exempt  # Desactivamos CSRF temporalmente para facilitar que aplicaciones externas le peguen al endpoint
+@require_POST
+def validar_ticket_api(request):
+    """
+    Endpoint de API para los molinetes del estadio.
+    Recibe el UUID del ticket, valida su estado y registra el ingreso.
+    """
+    import json
+    
+    try:
+        data = json.loads(request.body)
+        ticket_code = data.get('ticket_code')
+    except json.JSONDecodeError:
+        return JsonResponse({'status': 'error', 'message': 'JSON inválido.'}, status=400)
+        
+    if not ticket_code:
+        return JsonResponse({'status': 'error', 'message': 'Falta el código del ticket.'}, status=400)
+        
+    try:
+        # Buscamos el ticket por su UUID único
+        #ticket = Ticket.objects.get(ticket_code=ticket_code)
+
+        # Mejorames el .get. Buscamos el ticket y pre-cargamos de un solo golpe toda la cadena de relaciones
+        ticket = Ticket.objects.select_related(
+            'show_sector__show__event',  # Junta Ticket -> ShowSector -> Show -> Event
+            'show_sector__sector',      # Junta Ticket -> ShowSector -> Sector (para el nombre del sector)
+            'order__user'               # Junta Ticket -> Order -> User (para el nombre del comprador)
+        ).get(ticket_code=ticket_code)
+                
+        # Caso 1: El ticket ya fue escaneado antes (¡ALERTA DE FRAUDE!)
+        if ticket.is_used:
+            return JsonResponse({
+                'status': 'RECHAZADO',
+                'message': f'¡ALERTA! Este ticket ya ingresó el {ticket.used_at.strftime("%d/%m/%Y a las %H:%M")} hs.',
+                'evento': ticket.show_sector.show.event.title,
+                'sector': ticket.show_sector.sector.name
+            }, status=409) # Conflict
+            
+        # Caso 2: El ticket es válido y está listo para usar
+        ticket.is_used = True
+        ticket.used_at = timezone.now()
+        ticket.save()
+        
+        return JsonResponse({
+            'status': 'OK',
+            'message': '¡ACCESO CONCEDIDO! Bienvenido al estadio.',
+            'evento': ticket.show_sector.show.event.title,
+            'sector': ticket.show_sector.sector.name,
+            'comprador': ticket.order.user.get_full_name() or ticket.order.user.username
+        }, status=200)
+        
+    except Ticket.DoesNotExist:
+        # Caso 3: El código es inventado o falso
+        return JsonResponse({
+            'status': 'RECHAZADO',
+            'message': 'ERROR: El ticket no existe en el sistema. Código falso.'
+        }, status=404)
+
+def panel_control_accesos_view(request):
+    """Muestra la interfaz web interactiva para simular el escáner del staff"""
+    return render(request, 'shows/scanner_simulador.html')

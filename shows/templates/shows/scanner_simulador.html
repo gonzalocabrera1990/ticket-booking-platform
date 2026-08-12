@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% block title %} Escáner de Accesos | EventLive {% endblock %}
+
+{% block content %}
+<div style="max-width: 550px; margin: 40px auto; padding: 0 20px; font-family: Arial, sans-serif;">
+    
+    <div style="background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.15); border: 1px solid #e1e8ed;">
+        
+        <div style="background-color: #111111; color: #ffffff; padding: 25px; text-align: center;">
+            <h3 style="margin: 0; font-size: 22px; letter-spacing: 1px;">📟 CONTROL DE ACCESOS</h3>
+            <p style="margin: 5px 0 0 0; color: #888; font-size: 13px; font-weight: bold; letter-spacing: 0.5px;">STAFF DE ORGANIZACIÓN / PUERTA</p>
+        </div>
+        
+        <div style="padding: 30px;">
+            <p style="color: #666; font-size: 14px; text-align: center; margin-bottom: 25px; line-height: 1.4;">
+                Simulá el comportamiento de la lectora del molinete. Ingresá el código UUID de la entrada para verificar su validez.
+            </p>
+            
+            <div style="margin-bottom: 20px;">
+                <label for="ticket-input" style="display: block; font-weight: bold; margin-bottom: 8px; color: #333; font-size: 14px;">
+                    Código Único del Ticket (UUID):
+                </label>
+                <input type="text" id="ticket-input" 
+                       style="width: 100%; padding: 12px; font-size: 16px; border: 2px solid #ddd; border-radius: 6px; text-align: center; font-family: monospace; box-sizing: border-box; outline: none; transition: border-color 0.2s;" 
+                       placeholder="e.g. 8e46b075-be51-4440-ab61-679ff947082c"
+                       onfocus="this.style.borderColor='#111'" 
+                       onblur="this.style.borderColor='#ddd'">
+            </div>
+
+            <button type="button" id="btn-scan" onclick="procesarEscaneo()"
+                    style="width: 100%; background-color: #007bff; color: white; border: none; padding: 15px; font-size: 16px; font-weight: bold; border-radius: 6px; cursor: pointer; transition: background-color 0.2s;">
+                ⚡ Escanear Ticket / Registrar Ingreso
+            </button>
+
+            <div id="resultado-box" style="display: none; margin-top: 25px; padding: 20px; border-radius: 8px; text-align: center;">
+                <h2 id="resultado-status" style="margin: 0 0 5px 0; font-size: 20px; font-weight: bold; letter-spacing: 0.5px;"></h2>
+                <p id="resultado-message" style="margin: 0; font-size: 15px; line-height: 1.4;"></p>
+                
+                <div id="resultado-info" style="display: none; text-align: left; margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.2); font-size: 14px; line-height: 1.5;">
+                    <p style="margin: 4px 0;"><strong>Event:</strong> <span id="info-evento"></span></p>
+                    <p style="margin: 4px 0;"><strong>Sector:</strong> <span id="info-sector"></span></p>
+                    <p style="margin: 4px 0;"><strong>Asistente:</strong> <span id="info-comprador"></span></p>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+<script>
+function procesarEscaneo() {
+    const input = document.getElementById('ticket-input');
+    const box = document.getElementById('resultado-box');
+    const statusTxt = document.getElementById('resultado-status');
+    const msgTxt = document.getElementById('resultado-message');
+    const infoDiv = document.getElementById('resultado-info');
+    
+    const ticketCode = input.value.trim();
+    if (!ticketCode) {
+        alert("Por favor, ingresá un código.");
+        return;
+    }
+
+    // Petición asíncrona a tu API nativa
+    fetch("{% url 'validar_ticket_api' %}", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ ticket_code: ticketCode })
+    })
+    .then(response => {
+        return response.json().then(data => ({ statusHttp: response.status, body: data }));
+    })
+    .then(res => {
+        const data = res.body;
+        box.style.display = "block";
+        infoDiv.style.display = "none";
+        
+        if (res.statusHttp === 200) {
+            // ACCESO PERMITIDO (Estilo Verde Esmeralda)
+            box.style.backgroundColor = "#28a745";
+            box.style.color = "#ffffff";
+            statusTxt.innerText = "✅ ACCESO PERMITIDO";
+            msgTxt.innerText = data.message;
+            
+            document.getElementById('info-evento').innerText = data.evento;
+            document.getElementById('info-sector').innerText = data.sector;
+            document.getElementById('info-comprador').innerText = data.comprador;
+            infoDiv.style.display = "block";
+            
+            input.value = ""; // Limpia el input para la siguiente entrada
+        } else {
+            // ACCESO RECHAZADO o FRAUDE (Estilo Carmesí / Alerta)
+            box.style.backgroundColor = "#dc3545";
+            box.style.color = "#ffffff";
+            statusTxt.innerText = "❌ ACCESO DENEGADO";
+            msgTxt.innerText = data.message;
+            
+            if(data.evento) {
+                document.getElementById('info-evento').innerText = data.evento;
+                document.getElementById('info-sector').innerText = data.sector;
+                document.getElementById('info-comprador').innerText = "Desconocido (Fraude)";
+                infoDiv.style.display = "block";
+            }
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        box.style.display = "block";
+        box.style.backgroundColor = "#ffc107";
+        box.style.color = "#212529";
+        statusTxt.innerText = "⚠️ ERROR";
+        msgTxt.innerText = "No se pudo conectar con el servidor de molinetes.";
+    });
+}
+</script>
+{% endblock %}

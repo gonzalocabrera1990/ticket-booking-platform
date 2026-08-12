@@ -186,6 +186,7 @@ python manage.py liberar_reservas
 ```
 Limpia las compras fallidas verificando el tiempo transcurrido desde la reserva.
 
+
 ### Iniciar la aplicacion en Docker
 
 # 🚀 Despliegue del Proyecto con Docker
@@ -232,17 +233,25 @@ Ejecuta las migraciones de Django para crear la estructura de la base de datos:
 docker compose exec web python manage.py migrate
 ```
 
-### Paso 2: Crear tu usuario administrador local
+### Paso 2: Cargar las ciudades
+Popula la base de datos con la información geográfica necesaria:
+```bash
+docker compose exec web python manage.py cities_light
+```
+
+### Paso 3: Crear tu usuario administrador local
 Crea una cuenta de superusuario para acceder al panel de administración de Django:
 ```bash
 docker compose exec web python manage.py createsuperuser
 ```
 
-### Paso 3: Correr el seed completo de datos
+### Paso 4: Correr el seed completo de datos
 Llena la base de datos con información de prueba inicial ejecutando el script de preparación:
 ```bash
 docker compose exec -T web python manage.py shell < seeds/seed_completo.py
 ```
+
+---
 
 ## 🛑 Detener la Aplicación
 
