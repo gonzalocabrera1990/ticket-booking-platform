@@ -21,11 +21,15 @@ from django.core.mail import (
     EmailMessage
 )
 
+from purchase.models import Ticket # Asegurate de que este sea el nombre de tu modelo de entradas
+from django.views.decorators.csrf import csrf_exempt
 from .models import LoginCode
 from signup.models import User
 from signup.decorators import (
     unauthenticated_user
 )
+from django.contrib.auth import authenticate
+from rest_framework.authtoken.models import Token
 
 import json
 from django.http import JsonResponse
@@ -209,3 +213,108 @@ def verify_login_code_view(request):
 def logout_view(request):
     logout(request)
     return redirect('/')
+
+
+@csrf_exempt # Desactivamos CSRF para la app móvil porque usará Tokens de autorización
+def api_login(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            username = data.get('username')
+            password = data.get('password')
+            
+            user = authenticate(username=username, password=password)
+            
+            if user is not None:
+                if user.is_staff: # Solo permitimos el ingreso a usuarios administradores/staff
+                    # Crea o recupera el token de la base de datos de este usuario
+                    token, created = Token.objects.get_or_create(user=user)
+                    return JsonResponse({
+                        'status': 'success',
+                        'token': token.key,
+                        'username': user.username
+                    })
+                else:
+                    return JsonResponse({'error': 'No tenés permisos de Staff para controlar accesos'}, status=403)
+            else:
+                return JsonResponse({'error': 'Usuario o contraseña incorrectos'}, status=401)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+
+@csrf_exempt
+def api_validar_qr(request):
+    if request.method == 'POST':
+        # 1. Validar Token en Headers
+        auth_header = request.headers.get('Authorization')
+        if not auth_header or not auth_header.startswith('Token '):
+            return JsonResponse({'error': 'No autorizado. Falta el Token.'}, status=401)
+        
+        token_key = auth_header.split(' ')[1]
+        try:
+            Token.objects.get(key=token_key)
+        except Token.DoesNotExist:
+            return JsonResponse({'error': 'Token inválido o expirado'}, status=403)
+        
+        # 2. Procesar el QR basado en tus modelos reales
+        try:
+            data = json.loads(request.body)
+            qr_string = data.get('uuid') 
+            
+            # 🔄 Capturamos el modo enviado por la App (por defecto es 'check_in' si no viene nada)
+            modo = data.get('modo', 'check_in') 
+            
+            # Buscamos por tu campo real único 'ticket_code'
+            ticket = Ticket.objects.get(ticket_code=qr_string)
+            
+            # 🛑 SI EL MODO ES "CHECK_IN" (Validar y quemar), aplicamos los filtros estrictos
+            if modo == 'check_in':
+                if ticket.is_used:
+                    hora_ingreso = ticket.used_at.strftime("%H:%M") if ticket.used_at else "Desconocida"
+                    return JsonResponse({
+                        'status': 'error',
+                        'message': f'¡ALERTA! Ticket YA UTILIZADO a las {hora_ingreso}hs.'
+                    }, status=400)
+                
+                # Si pasa el filtro, lo quemamos en PostgreSQL de forma definitiva
+                ticket.is_used = True
+                ticket.used_at = timezone.now()
+                ticket.save()
+            
+            # 🔍 SI EL MODO ES "READ_ONLY" (Solo validar)
+            # Nos saltamos el 'if ticket.is_used' y NO ejecutamos ticket.save().
+            # Así, aunque el ticket ya haya ingresado por la puerta principal, el filtro da "Acceso Permitido".
+            
+            # Buscamos el nombre del show navegando por tus relaciones
+            nombre_show = "Evento"
+            if ticket.order and ticket.order.show:
+                nombre_show = str(ticket.order.show)
+            elif ticket.show_sector and hasattr(ticket.show_sector, 'show'):
+                nombre_show = str(ticket.show_sector.show)
+
+            # Buscamos el nombre del asistente
+            nombre_asistente = ticket.attendee_name
+            if not nombre_asistente and ticket.order and ticket.order.user:
+                nombre_asistente = ticket.order.user.username
+
+            # Armamos un mensaje personalizado para que el Staff sepa qué pasó en su pantalla
+            mensaje_exito = '¡Acceso Permitido!' if modo == 'check_in' else '¡Ticket Válido! (Solo Lectura)'
+
+            return JsonResponse({
+                'status': 'success',
+                'message': mensaje_exito,
+                'datos': {
+                    'evento': nombre_show, 
+                    'usuario': nombre_asistente if nombre_asistente else 'Invitado',
+                    'ya_usado_antes': ticket.is_used # Le avisa a la app si este ticket ya pasó por el check-in previo
+                }
+            })
+            
+        except Ticket.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Ticket falso o inexistente.'}, status=404)
+        except Exception as e:
+            print(f"❌ ERROR EN LA API: {str(e)}")
+            return JsonResponse({'error': str(e)}, status=400)
+            
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
