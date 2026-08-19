@@ -137,6 +137,28 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 AUTH_USER_MODEL = 'signup.User'
 CITIES_LIGHT_INCLUDE_COUNTRIES = ['AR']
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 LOGIN_URL = 'login'
 PAYMENT_PROCESSOR = 'purchase.payment_processors.MockPaymentProcessor'
+
+# ==============================================================================
+# CONFIGURACIÓN DE ENVÍO DE EMAILS
+# ==============================================================================
+
+# 🔌 MODO DESARROLLO (Muestra los mails en la terminal de Debian)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# 🚀 MODO REAL (Descomentá esta línea y comentá la de arriba para enviar mails reales)
+#EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+# Servidor SMTP (Este ejemplo usa el de Gmail, que es el más común)
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
+
+# Credenciales (Es clave que uses variables de entorno para no subir tus contraseñas a GitHub)
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', 'tu-direccion-de-email')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', 'tu-contraseña-de-aplicación')
+
+# Dirección que verá el usuario como remitente
+DEFAULT_FROM_EMAIL = f"Ticketera de Eventos <{EMAIL_HOST_USER}>"
