@@ -14,6 +14,9 @@ from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 
+# Importás la función que creamos en el paso anterior
+from purchase.utils import enviar_ticket_por_email # o enviar_correo_confirmacion
+
 import uuid
 
 from .utils import enviar_correo_confirmacion
@@ -96,14 +99,78 @@ def mock_checkout_view(request, order_id):
     return render(request, 'purchase/mock_checkout.html', context)
 
 
+# def payment_feedback_view(request):
+#     """
+#     Recibe la respuesta de la pasarela (simulando un Webhook/Redirect).
+#     Modifica la base de datos según el resultado del pago.
+#     """
+#     procesador = get_payment_processor()
+    
+#     # El procesador analiza el request y nos devuelve un diccionario estandarizado
+#     resultado = procesador.verify_webhook(request)
+    
+#     order_id = resultado.get('order_id')
+#     if not order_id:
+#         return HttpResponseBadRequest("Falta el ID de la orden.")
+        
+#     orden = get_object_or_404(Order, id=order_id)
+
+#     if resultado['success']:
+#        try:
+#             with transaction.atomic():
+#                 # 1. Cambiamos el estado de la orden
+#                 orden.status = 'PAID'
+#                 orden.save()
+                
+#                 # 2. Generamos los tickets físicos según la cantidad comprada
+#                 tickets_creados = []
+#                 for _ in range(orden.quantity):
+#                     ticket = Ticket.objects.create(
+#                         order=orden,
+#                         show_sector=orden.show_sector  # <-- Agregamos esto para cumplir con tu modelo
+#                     )
+#                     tickets_creados.append(ticket)
+
+#                     # with transaction.atomic():
+#                     #     # ... (guardado de orden y creación de tickets)
+#                     #     pass
+                    
+#                     # Fuera del bloque atómico pero dentro del if success, gatillamos el email
+#             print("Gatillando función de email...") # Meté este print de control
+#             enviar_correo_confirmacion(orden)
+#             print("¡Función de email ejecutada con éxito!")        
+#             mensaje = f"¡Pago aprobado con éxito! Tu orden #{orden.id} está confirmada. Se han generado {len(tickets_creados)} tickets y se envió un mail de confirmación."
+#             clase_alerta = "success"
+            
+#         except Exception as e:
+#             # IMPRESCINDIBLE: Esto nos va a decir en la consola qué está fallando por dentro
+#             print("\n❌ ❌ ❌ ¡¡¡EL PROCESO DE EMAIL ACABA DE FALLAR!!! ❌ ❌ ❌")
+#             print(f"Error real detectado: {str(e)}")
+#             import traceback
+#             traceback.print_exc() # Esto te pinta el número de línea exacto del error
+#             print("❌ ❌ ❌ ------------------------------------------- ❌ ❌ ❌\n")
+            
+#             mensaje = f"El pago fue aprobado, pero ocurrió un error al generar tus tickets: {str(e)}. Por favor, contacta a soporte."
+#             clase_alerta = "warning"
+#     else:
+#         # El pago falló o fue cancelado. Expiramos/Cancelamos la orden
+#         orden.status = 'EXPIRED'  # O 'REFUNDED' / 'REJECTED' según prefieras
+#         orden.save()
+#         mensaje = f"El pago de la orden #{orden.id} fue rechazado o cancelado. Los asientos fueron liberados."
+#         clase_alerta = "danger"
+        
+#     return render(request, 'purchase/payment_feedback.html', {
+#         'mensaje': mensaje,
+#         'clase_alerta': clase_alerta,
+#         'orden': orden
+#     })
+
 def payment_feedback_view(request):
     """
-    Recibe la respuesta de la pasarela (simulando un Webhook/Redirect).
-    Modifica la base de datos según el resultado del pago.
+    Recibe la respuesta de la pasarela.
+    Modifica la base de datos y envía las entradas por email.
     """
     procesador = get_payment_processor()
-    
-    # El procesador analiza el request y nos devuelve un diccionario estandarizado
     resultado = procesador.verify_webhook(request)
     
     order_id = resultado.get('order_id')
@@ -113,54 +180,69 @@ def payment_feedback_view(request):
     orden = get_object_or_404(Order, id=order_id)
 
     if resultado['success']:
-    #     # ¡El pago fue exitoso! Confirmamos la orden
-    #     orden.status = 'PAID'
-    #     orden.save()
+        # Evitamos procesar dos veces una orden que ya fue pagada (por si la pasarela manda 2 webhooks)
+        if orden.status == 'PAID':
+            return render(request, 'purchase/payment_feedback.html', {
+                'mensaje': f"La orden #{orden.id} ya había sido procesada previamente.",
+                'clase_alerta': "info",
+                'orden': orden
+            })
+
+        tickets_creados = []
         
-    #     # Opcional: Acá es donde en el futuro generarás los Tickets físicos
-    #     mensaje = f"¡Pago aprobado con éxito! Tu orden #{orden.id} está confirmada."
-    #     clase_alerta = "success"
-    # Usamos una transacción atómica para asegurarnos de que se guarde la orden
-        # Y se creen TODOS los tickets correspondientes. Si uno falla, no se guarda nada.
+        # 🟢 PASO 1: Impacto en PostgreSQL (Transacción Atómica)
         try:
             with transaction.atomic():
                 # 1. Cambiamos el estado de la orden
                 orden.status = 'PAID'
                 orden.save()
                 
-                # 2. Generamos los tickets físicos según la cantidad comprada
-                tickets_creados = []
+                # 2. Generamos los tickets físicos en la base de datos
                 for _ in range(orden.quantity):
                     ticket = Ticket.objects.create(
                         order=orden,
-                        show_sector=orden.show_sector  # <-- Agregamos esto para cumplir con tu modelo
+                        show_sector=orden.show_sector
                     )
                     tickets_creados.append(ticket)
-
-                    # with transaction.atomic():
-                    #     # ... (guardado de orden y creación de tickets)
-                    #     pass
                     
-                    # Fuera del bloque atómico pero dentro del if success, gatillamos el email
-            print("Gatillando función de email...") # Meté este print de control
-            enviar_correo_confirmacion(orden)
-            print("¡Función de email ejecutada con éxito!")        
-            mensaje = f"¡Pago aprobado con éxito! Tu orden #{orden.id} está confirmada. Se han generado {len(tickets_creados)} tickets y se envió un mail de confirmación."
+        except Exception as e:
+            print(f"\n❌ ERROR AL CREAR TICKETS EN BASE DE DATOS: {str(e)}\n")
+            return render(request, 'purchase/payment_feedback.html', {
+                'mensaje': f"Hubo un error al procesar tu compra en la base de datos: {str(e)}",
+                'clase_alerta': "danger",
+                'orden': orden
+            })
+
+        # 🟢 PASO 2: Envío de Correos (FUERA de la transacción atómica)
+        # En este punto los tickets ya existen seguro en Postgres.
+        try:
+            print("Gatillando función de email...")
+            
+            # Opción B: Si tu función envía ticket por ticket:
+            for ticket in tickets_creados:
+                enviar_ticket_por_email(ticket)
+                
+            # Opción A (Alternativa): Si tu función recibe la orden completa con todos sus tickets:
+            # enviar_correo_confirmacion(orden)
+            
+            print("¡Emails enviados con éxito!")        
+            mensaje = f"¡Pago aprobado con éxito! Tu orden #{orden.id} está confirmada. Se enviaron {len(tickets_creados)} entradas a tu correo."
             clase_alerta = "success"
             
         except Exception as e:
-            # IMPRESCINDIBLE: Esto nos va a decir en la consola qué está fallando por dentro
-            print("\n❌ ❌ ❌ ¡¡¡EL PROCESO DE EMAIL ACABA DE FALLAR!!! ❌ ❌ ❌")
+            # Captura si falla la conexión con el SMTP/Gmail, pero NO cancela la compra
+            print("\n❌ ❌ ❌ ¡¡¡EL ENVÍO DE EMAIL ACABA DE FALLAR!!! ❌ ❌ ❌")
             print(f"Error real detectado: {str(e)}")
             import traceback
-            traceback.print_exc() # Esto te pinta el número de línea exacto del error
+            traceback.print_exc()
             print("❌ ❌ ❌ ------------------------------------------- ❌ ❌ ❌\n")
             
-            mensaje = f"El pago fue aprobado, pero ocurrió un error al generar tus tickets: {str(e)}. Por favor, contacta a soporte."
+            mensaje = f"¡Pago aprobado y tickets generados! Sin embargo, no pudimos enviar el correo ({str(e)}). Podés descargar tus entradas desde tu perfil."
             clase_alerta = "warning"
+
     else:
-        # El pago falló o fue cancelado. Expiramos/Cancelamos la orden
-        orden.status = 'EXPIRED'  # O 'REFUNDED' / 'REJECTED' según prefieras
+        # El pago falló o fue cancelado.
+        orden.status = 'EXPIRED'
         orden.save()
         mensaje = f"El pago de la orden #{orden.id} fue rechazado o cancelado. Los asientos fueron liberados."
         clase_alerta = "danger"
@@ -170,6 +252,7 @@ def payment_feedback_view(request):
         'clase_alerta': clase_alerta,
         'orden': orden
     })
+
 
 @login_required
 @require_POST

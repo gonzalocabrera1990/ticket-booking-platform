@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; }
+        .ticket-box { background: white; max-width: 450px; margin: 0 auto; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border: 1px solid #ddd; }
+        .header { background: #1a1a1a; color: white; padding: 20px; text-align: center; }
+        .content { padding: 30px; text-align: center; }
+        .qr-img { width: 200px; height: 200px; margin: 20px auto; display: block; border: 4px solid #1a1a1a; border-radius: 8px; }
+        .footer { background: #f9f9f9; padding: 15px; font-size: 12px; color: #666; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="ticket-box">
+        <div class="header">
+            <h2>¡Tu entrada está lista!</h2>
+        </div>
+        <div class="content">
+            <p>Hola <strong>{{ asistente }}</strong>,</p>
+            <p>Presentá este código QR en el ingreso del evento:</p>
+            <img src="cid:qr_code_image" alt="Código QR de Acceso" style="width: 200px; height: 200px; display: block; margin: 0 auto;">
+            <h3>{{ show }}</h3>
+            <p><strong>Sector:</strong> {{ sector }}</p>
+            <p style="font-size: 13px; color: #555;">Código de Ticket: <br><code>{{ ticket.ticket_code }}</code></p>
+        </div>
+        <div class="footer">
+            Este ticket es personal e intransferible. No lo compartas con nadie.
+        </div>
+    </div>
+</body>
+</html>
